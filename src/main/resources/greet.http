@@ -1,0 +1,27 @@
+###greet
+GRPC localhost:50051/greet.GreetService/Greet
+
+{
+  "greeting": {
+    "first_name": "Pavel",
+    "last_name": "Grigoryev"
+  }
+}
+
+###greet many times
+GRPC localhost:50051/greet.GreetService/GreetManyTimes
+
+{
+  "greeting": {
+    "first_name": "Corey",
+    "last_name": "Taylor"
+  }
+}
+
+###sum
+GRPC localhost:50051/calculator.CalculatorService/Sum
+
+{
+  "first_number": "3",
+  "second_number": "17"
+}

@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+    id 'com.google.protobuf' version '0.9.3'
+    id 'io.freefair.lombok' version "8.0.1"
+}
+
+group = 'com.grigoryev'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.22.3"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.56.0'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+dependencies {
+    runtimeOnly 'io.grpc:grpc-netty-shaded:1.56.0'
+
+    implementation 'io.grpc:grpc-protobuf:1.56.0'
+    implementation 'io.grpc:grpc-stub:1.56.0'
+    implementation 'org.slf4j:slf4j-api:2.0.7'
+    implementation 'ch.qos.logback:logback-core:1.4.8'
+    implementation 'ch.qos.logback:logback-classic:1.4.8'
+
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+}
