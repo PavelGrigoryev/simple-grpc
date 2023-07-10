@@ -7,9 +7,12 @@ import com.grigoryev.greet.GreetManyTimesResponse;
 import com.grigoryev.greet.GreetRequest;
 import com.grigoryev.greet.GreetResponse;
 import com.grigoryev.greet.GreetServiceGrpc;
+import com.grigoryev.greet.GreetWithDeadlineRequest;
+import com.grigoryev.greet.GreetWithDeadlineResponse;
 import com.grigoryev.greet.Greeting;
 import com.grigoryev.greet.LongGreatResponse;
 import com.grigoryev.greet.LongGreetRequest;
+import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 
@@ -110,6 +113,33 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
             }
 
         };
+    }
+
+    @Override
+    public void greetWithDeadline(GreetWithDeadlineRequest request, StreamObserver<GreetWithDeadlineResponse> responseObserver) {
+        Context context = Context.current();
+
+        try {
+            for (int i = 0; i < 3; i++) {
+                if (!context.isCancelled()) {
+                    log.info("Sleep for 100 ms");
+                    Thread.sleep(100);
+                } else {
+                    return;
+                }
+            }
+
+            GreetWithDeadlineResponse response = GreetWithDeadlineResponse.newBuilder()
+                    .setResult("Hello! " + request.getGreeting().getFirstName())
+                    .build();
+
+            log.info(response.toString());
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+            Thread.currentThread().interrupt();
+        }
     }
 
 }

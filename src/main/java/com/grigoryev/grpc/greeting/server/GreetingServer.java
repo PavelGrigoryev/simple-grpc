@@ -17,9 +17,8 @@ public class GreetingServer {
         Server server = ServerBuilder.forPort(50051)
                 .addService(new GreetServiceImpl())
                 .addService(new CalculatorServiceImpl())
-                .build();
-
-        server.start();
+                .build()
+                .start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("Received Shutdown Request");

@@ -7,8 +7,11 @@ import com.grigoryev.calculator.FindMaximumRequest;
 import com.grigoryev.calculator.FindMaximumResponse;
 import com.grigoryev.calculator.PrimeNumberDecompositionRequest;
 import com.grigoryev.calculator.PrimeNumberDecompositionResponse;
+import com.grigoryev.calculator.SquareRootRequest;
+import com.grigoryev.calculator.SquareRootResponse;
 import com.grigoryev.calculator.SumRequest;
 import com.grigoryev.calculator.SumResponse;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 
@@ -87,42 +90,66 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
 
     @Override
     public StreamObserver<FindMaximumRequest> findMaximum(StreamObserver<FindMaximumResponse> responseObserver) {
-       return new StreamObserver<>() {
+        return new StreamObserver<>() {
 
-           private long currentMaximum = 0;
+            private long currentMaximum = 0;
 
-           @Override
-           public void onNext(FindMaximumRequest value) {
-               long currentNumber = value.getNumber();
-               if (currentNumber > currentMaximum) {
-                   currentMaximum = currentNumber;
-                   FindMaximumResponse response = FindMaximumResponse.newBuilder()
-                           .setMaximum(currentMaximum)
-                           .build();
+            @Override
+            public void onNext(FindMaximumRequest value) {
+                long currentNumber = value.getNumber();
+                if (currentNumber > currentMaximum) {
+                    currentMaximum = currentNumber;
+                    FindMaximumResponse response = FindMaximumResponse.newBuilder()
+                            .setMaximum(currentMaximum)
+                            .build();
 
-                   log.info(response.toString());
-                   responseObserver.onNext(response);
-               }
-           }
+                    log.info(response.toString());
+                    responseObserver.onNext(response);
+                }
+            }
 
-           @Override
-           public void onError(Throwable t) {
-               log.error(t.getMessage());
-               responseObserver.onCompleted();
-           }
+            @Override
+            public void onError(Throwable t) {
+                log.error(t.getMessage());
+                responseObserver.onCompleted();
+            }
 
-           @Override
-           public void onCompleted() {
-               FindMaximumResponse response = FindMaximumResponse.newBuilder()
-                       .setMaximum(currentMaximum)
-                       .build();
+            @Override
+            public void onCompleted() {
+                FindMaximumResponse response = FindMaximumResponse.newBuilder()
+                        .setMaximum(currentMaximum)
+                        .build();
 
-               log.info(response.toString());
-               responseObserver.onNext(response);
-               responseObserver.onCompleted();
-           }
+                log.info(response.toString());
+                responseObserver.onNext(response);
+                responseObserver.onCompleted();
+            }
 
-       };
+        };
+    }
+
+    @Override
+    public void squareRoot(SquareRootRequest request, StreamObserver<SquareRootResponse> responseObserver) {
+        long number = request.getNumber();
+
+        if (number > 0) {
+            double numberRoot = Math.sqrt(number);
+            SquareRootResponse response = SquareRootResponse.newBuilder()
+                    .setNumberRoot(numberRoot)
+                    .build();
+
+            log.info(response.toString());
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } else {
+            log.error("The number being sent is not positive: {}", number);
+            responseObserver.onError(
+                    Status.INVALID_ARGUMENT
+                            .withDescription("The number being sent is not positive")
+                            .augmentDescription("Number sent: " + number)
+                            .asRuntimeException()
+            );
+        }
     }
 
 }

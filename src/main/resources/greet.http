@@ -18,6 +18,16 @@ GRPC localhost:50051/greet.GreetService/GreetManyTimes
   }
 }
 
+###greet with dead line
+GRPC localhost:50051/greet.GreetService/GreetWithDeadline
+
+{
+  "greeting": {
+    "first_name": "Simple",
+    "last_name": "Dimple"
+  }
+}
+
 ###sum
 GRPC localhost:50051/calculator.CalculatorService/Sum
 
@@ -31,4 +41,11 @@ GRPC localhost:50051/calculator.CalculatorService/PrimeNumberDecomposition
 
 {
   "number": "12345678"
+}
+
+###square root
+GRPC localhost:50051/calculator.CalculatorService/SquareRoot
+
+{
+  "number": "1563"
 }
