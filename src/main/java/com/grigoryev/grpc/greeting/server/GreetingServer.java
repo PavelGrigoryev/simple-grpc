@@ -24,7 +24,7 @@ public class GreetingServer {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("Received Shutdown Request");
             server.shutdown();
-            log.info("Successfully stopped the server ");
+            log.info("Successfully stopped the server");
         }));
 
         server.awaitTermination();

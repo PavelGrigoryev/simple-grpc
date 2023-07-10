@@ -25,3 +25,10 @@ GRPC localhost:50051/calculator.CalculatorService/Sum
   "first_number": "3",
   "second_number": "17"
 }
+
+###prime number decomposition
+GRPC localhost:50051/calculator.CalculatorService/PrimeNumberDecomposition
+
+{
+  "number": "12345678"
+}
