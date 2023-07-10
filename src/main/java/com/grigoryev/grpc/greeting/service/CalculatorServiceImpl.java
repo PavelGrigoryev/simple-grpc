@@ -3,6 +3,8 @@ package com.grigoryev.grpc.greeting.service;
 import com.grigoryev.calculator.CalculatorServiceGrpc;
 import com.grigoryev.calculator.ComputeAverageRequest;
 import com.grigoryev.calculator.ComputeAverageResponse;
+import com.grigoryev.calculator.FindMaximumRequest;
+import com.grigoryev.calculator.FindMaximumResponse;
 import com.grigoryev.calculator.PrimeNumberDecompositionRequest;
 import com.grigoryev.calculator.PrimeNumberDecompositionResponse;
 import com.grigoryev.calculator.SumRequest;
@@ -81,6 +83,46 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
             }
 
         };
+    }
+
+    @Override
+    public StreamObserver<FindMaximumRequest> findMaximum(StreamObserver<FindMaximumResponse> responseObserver) {
+       return new StreamObserver<>() {
+
+           private long currentMaximum = 0;
+
+           @Override
+           public void onNext(FindMaximumRequest value) {
+               long currentNumber = value.getNumber();
+               if (currentNumber > currentMaximum) {
+                   currentMaximum = currentNumber;
+                   FindMaximumResponse response = FindMaximumResponse.newBuilder()
+                           .setMaximum(currentMaximum)
+                           .build();
+
+                   log.info(response.toString());
+                   responseObserver.onNext(response);
+               }
+           }
+
+           @Override
+           public void onError(Throwable t) {
+               log.error(t.getMessage());
+               responseObserver.onCompleted();
+           }
+
+           @Override
+           public void onCompleted() {
+               FindMaximumResponse response = FindMaximumResponse.newBuilder()
+                       .setMaximum(currentMaximum)
+                       .build();
+
+               log.info(response.toString());
+               responseObserver.onNext(response);
+               responseObserver.onCompleted();
+           }
+
+       };
     }
 
 }

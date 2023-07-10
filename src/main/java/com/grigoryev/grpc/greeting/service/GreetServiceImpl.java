@@ -1,5 +1,7 @@
 package com.grigoryev.grpc.greeting.service;
 
+import com.grigoryev.greet.GreetEveryoneRequest;
+import com.grigoryev.greet.GreetEveryoneResponse;
 import com.grigoryev.greet.GreetManyTimesRequest;
 import com.grigoryev.greet.GreetManyTimesResponse;
 import com.grigoryev.greet.GreetRequest;
@@ -76,6 +78,34 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
                         .build();
                 log.info(longGreatResponse.toString());
                 responseObserver.onNext(longGreatResponse);
+                responseObserver.onCompleted();
+            }
+
+        };
+    }
+
+    @Override
+    public StreamObserver<GreetEveryoneRequest> greetEveryone(StreamObserver<GreetEveryoneResponse> responseObserver) {
+        return new StreamObserver<>() {
+
+            @Override
+            public void onNext(GreetEveryoneRequest value) {
+                String result = "Hello " + value.getGreeting().getFirstName();
+                GreetEveryoneResponse greetEveryoneResponse = GreetEveryoneResponse.newBuilder()
+                        .setResult(result)
+                        .build();
+
+                log.info(greetEveryoneResponse.toString());
+                responseObserver.onNext(greetEveryoneResponse);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                log.error(t.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
                 responseObserver.onCompleted();
             }
 
