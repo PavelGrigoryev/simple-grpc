@@ -11,14 +11,14 @@ GRPC localhost:50051/blog.BlogService/save
 GRPC localhost:50051/blog.BlogService/findById
 
 {
-  "id": "64ad69e2a9a4486d1aa932f1"
+  "id": "64ada3e8cfba570b69cc070c"
 }
 
 ###updateById
 GRPC localhost:50051/blog.BlogService/updateById
 
 {
-  "id": "64ad71a84f3b870d3656ddb3",
+  "id": "64ada3e8cfba570b69cc070c",
   "author": "Nikita",
   "title": "Pop",
   "content": "Pink pop content"
@@ -28,7 +28,7 @@ GRPC localhost:50051/blog.BlogService/updateById
 GRPC localhost:50051/blog.BlogService/deleteById
 
 {
-  "id": "64ad69e2a9a4486d1aa932f1"
+  "id": "64ada3e8cfba570b69cc070c"
 }
 
 ###findAll

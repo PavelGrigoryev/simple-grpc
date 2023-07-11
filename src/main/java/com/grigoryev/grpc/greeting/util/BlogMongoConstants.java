@@ -3,7 +3,7 @@ package com.grigoryev.grpc.greeting.util;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class BlogMongoConstant {
+public class BlogMongoConstants {
 
     public static final String ID = "_id";
     public static final String AUTHOR = "author";
