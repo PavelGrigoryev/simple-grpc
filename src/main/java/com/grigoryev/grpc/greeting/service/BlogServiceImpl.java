@@ -12,6 +12,7 @@ import com.grigoryev.blog.SaveBlogRequest;
 import com.grigoryev.blog.UpdateByIdBlogRequest;
 import com.grigoryev.grpc.greeting.mapper.BlogMapper;
 import com.grigoryev.grpc.greeting.mapper.impl.BlogMapperImpl;
+import com.grigoryev.grpc.greeting.util.RequestValidator;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -46,6 +47,9 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
 
     @Override
     public void save(SaveBlogRequest request, StreamObserver<BlogResponse> responseObserver) {
+        if (RequestValidator.validateRequest(request, responseObserver)) {
+            return;
+        }
         Instant now = LocalDateTime.now().toInstant(ZoneOffset.UTC);
         Timestamp timestamp = getTimestamp(now);
 
@@ -67,6 +71,9 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
 
     @Override
     public void findById(FindByIdBlogRequest request, StreamObserver<BlogResponse> responseObserver) {
+        if (RequestValidator.validateRequest(request, responseObserver)) {
+            return;
+        }
         String blogId = request.getId();
         Document document = mongoCollection.find(eq(ID, new ObjectId(blogId))).first();
 
@@ -89,6 +96,9 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
 
     @Override
     public void updateById(UpdateByIdBlogRequest request, StreamObserver<BlogResponse> responseObserver) {
+        if (RequestValidator.validateRequest(request, responseObserver)) {
+            return;
+        }
         String blogId = request.getId();
         Document document = mongoCollection.find(eq(ID, new ObjectId(blogId))).first();
 
@@ -119,6 +129,9 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
 
     @Override
     public void deleteById(DeleteByIdBlogRequest request, StreamObserver<DeleteByIdBlogResponse> responseObserver) {
+        if (RequestValidator.validateRequest(request, responseObserver)) {
+            return;
+        }
         String blogId = request.getId();
         DeleteResult result = mongoCollection.deleteOne(eq(ID, new ObjectId(blogId)));
 
@@ -168,7 +181,7 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
                 .withDescription(description)
                 .asRuntimeException();
 
-        log.error(logMessage, runtimeException.getStatus());
+        log.error(logMessage, description);
         responseObserver.onError(runtimeException);
     }
 

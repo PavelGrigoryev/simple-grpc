@@ -20,10 +20,16 @@ protobuf {
         grpc {
             artifact = 'io.grpc:protoc-gen-grpc-java:1.56.0'
         }
+        javapgv {
+            artifact = 'build.buf.protoc-gen-validate:protoc-gen-validate:0.6.13'
+        }
     }
     generateProtoTasks {
         all()*.plugins {
             grpc {}
+            javapgv {
+                option "lang=java"
+            }
         }
     }
 }
@@ -33,6 +39,7 @@ dependencies {
 
     implementation 'io.grpc:grpc-protobuf:1.56.0'
     implementation 'io.grpc:grpc-stub:1.56.0'
+    implementation 'build.buf.protoc-gen-validate:pgv-java-stub:1.0.2'
     implementation 'org.slf4j:slf4j-api:2.0.7'
     implementation 'ch.qos.logback:logback-core:1.4.8'
     implementation 'ch.qos.logback:logback-classic:1.4.8'
