@@ -1,5 +1,6 @@
 package com.grigoryev.grpc.greeting.server;
 
+import com.grigoryev.grpc.greeting.service.BlogServiceImpl;
 import com.grigoryev.grpc.greeting.service.CalculatorServiceImpl;
 import com.grigoryev.grpc.greeting.service.GreetServiceImpl;
 import io.grpc.Server;
@@ -17,6 +18,7 @@ public class GreetingServer {
         Server server = ServerBuilder.forPort(50051)
                 .addService(new GreetServiceImpl())
                 .addService(new CalculatorServiceImpl())
+                .addService(new BlogServiceImpl())
                 .build()
                 .start();
 

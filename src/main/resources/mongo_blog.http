@@ -1,0 +1,35 @@
+###save
+GRPC localhost:50051/blog.BlogService/save
+
+{
+  "author": "Pavel",
+  "title": "Black Metal",
+  "content": "Very Black content"
+}
+
+###findById
+GRPC localhost:50051/blog.BlogService/findById
+
+{
+  "id": "64ad69e2a9a4486d1aa932f1"
+}
+
+###updateById
+GRPC localhost:50051/blog.BlogService/updateById
+
+{
+  "id": "64ad71a84f3b870d3656ddb3",
+  "author": "Nikita",
+  "title": "Pop",
+  "content": "Pink pop content"
+}
+
+###deleteById
+GRPC localhost:50051/blog.BlogService/deleteById
+
+{
+  "id": "64ad69e2a9a4486d1aa932f1"
+}
+
+###findAll
+GRPC localhost:50051/blog.BlogService/findAll

@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package blog;
+
+option java_package = "com.grigoryev.blog";
+option java_multiple_files = true;
+
+message Blog {
+  string id = 1;
+  string author = 2;
+  string title = 3;
+  string content = 4;
+  google.protobuf.Timestamp created_time = 5;
+  google.protobuf.Timestamp updated_time = 6;
+}
+
+message SaveBlogRequest {
+  string author = 1;
+  string title = 2;
+  string content = 3;
+}
+
+message BlogResponse {
+  Blog blog = 1;
+}
+
+message FindByIdBlogRequest {
+  string id = 1;
+}
+
+message UpdateByIdBlogRequest {
+  string id = 1;
+  string author = 2;
+  string title = 3;
+  string content = 4;
+}
+
+message DeleteByIdBlogRequest {
+  string id = 1;
+}
+
+message DeleteByIdBlogResponse {
+  string message = 1;
+}
+
+service BlogService {
+  rpc save(SaveBlogRequest) returns (BlogResponse) {};
+  rpc findById(FindByIdBlogRequest) returns (BlogResponse) {};
+  rpc updateById(UpdateByIdBlogRequest) returns (BlogResponse) {};
+  rpc deleteById(DeleteByIdBlogRequest) returns (DeleteByIdBlogResponse) {};
+  rpc findAll(google.protobuf.Empty) returns (stream BlogResponse) {};
+}
