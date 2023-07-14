@@ -7,6 +7,8 @@ plugins {
 group = 'com.grigoryev'
 version = '1.0-SNAPSHOT'
 
+sourceCompatibility = targetCompatibility = '17'
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -31,6 +33,18 @@ protobuf {
                 option "lang=java"
             }
         }
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'com.grigoryev.grpc.greeting.server.GreetingServer'
+        )
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 

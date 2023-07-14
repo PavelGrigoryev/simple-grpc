@@ -10,14 +10,11 @@ import com.grigoryev.blog.DeleteByIdBlogResponse;
 import com.grigoryev.blog.FindByIdBlogRequest;
 import com.grigoryev.blog.SaveBlogRequest;
 import com.grigoryev.blog.UpdateByIdBlogRequest;
+import com.grigoryev.grpc.greeting.dao.BlogDao;
+import com.grigoryev.grpc.greeting.dao.impl.BlogDaoImpl;
 import com.grigoryev.grpc.greeting.mapper.BlogMapper;
 import com.grigoryev.grpc.greeting.mapper.impl.BlogMapperImpl;
 import com.grigoryev.grpc.greeting.util.RequestValidator;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.result.DeleteResult;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -29,20 +26,15 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-import static com.grigoryev.grpc.greeting.util.BlogMongoConstants.AUTHOR;
-import static com.grigoryev.grpc.greeting.util.BlogMongoConstants.CONTENT;
 import static com.grigoryev.grpc.greeting.util.BlogMongoConstants.CREATED_TIME;
 import static com.grigoryev.grpc.greeting.util.BlogMongoConstants.ID;
-import static com.grigoryev.grpc.greeting.util.BlogMongoConstants.TITLE;
 import static com.grigoryev.grpc.greeting.util.BlogMongoConstants.UPDATED_TIME;
 import static com.mongodb.client.model.Filters.eq;
 
 @Slf4j
 public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
 
-    private final MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017");
-    private final MongoDatabase mongoDatabase = mongoClient.getDatabase("blog_db");
-    private final MongoCollection<Document> mongoCollection = mongoDatabase.getCollection("blog");
+    private final BlogDao blogDao = new BlogDaoImpl();
     private final BlogMapper blogMapper = new BlogMapperImpl();
 
     @Override
@@ -50,18 +42,13 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
         if (RequestValidator.validateRequest(request, responseObserver)) {
             return;
         }
+
         Instant now = LocalDateTime.now().toInstant(ZoneOffset.UTC);
         Timestamp timestamp = getTimestamp(now);
 
-        Document document = new Document(AUTHOR, request.getAuthor())
-                .append(TITLE, request.getTitle())
-                .append(CONTENT, request.getContent())
-                .append(CREATED_TIME, now)
-                .append(UPDATED_TIME, now);
-
-        mongoCollection.insertOne(document);
-
+        Document document = blogDao.insertOne(request, now);
         String id = document.getObjectId(ID).toString();
+
         BlogResponse response = blogMapper.toBlogResponse(id, request, timestamp);
 
         log.info("Save:\n{}", response);
@@ -74,8 +61,9 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
         if (RequestValidator.validateRequest(request, responseObserver)) {
             return;
         }
+
         String blogId = request.getId();
-        Document document = mongoCollection.find(eq(ID, new ObjectId(blogId))).first();
+        Document document = blogDao.find(eq(ID, new ObjectId(blogId)));
 
         if (document == null) {
             throwStatusRuntimeException("There is no blog with ID " + blogId,
@@ -99,8 +87,9 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
         if (RequestValidator.validateRequest(request, responseObserver)) {
             return;
         }
+
         String blogId = request.getId();
-        Document document = mongoCollection.find(eq(ID, new ObjectId(blogId))).first();
+        Document document = blogDao.find(eq(ID, new ObjectId(blogId)));
 
         if (document == null) {
             throwStatusRuntimeException("There is no blog with ID " + blogId + " to update",
@@ -111,13 +100,7 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
             Instant updatedInstant = LocalDateTime.now().toInstant(ZoneOffset.UTC);
             Timestamp updatedTimestamp = getTimestamp(updatedInstant);
 
-            Document documentToUpdate = new Document(AUTHOR, request.getAuthor())
-                    .append(TITLE, request.getTitle())
-                    .append(CONTENT, request.getContent())
-                    .append(CREATED_TIME, createdInstant)
-                    .append(UPDATED_TIME, updatedInstant);
-
-            mongoCollection.replaceOne(eq(ID, document.getObjectId(ID)), documentToUpdate);
+            blogDao.replaceOne(eq(ID, document.getObjectId(ID)), request, createdInstant, updatedInstant);
 
             BlogResponse response = blogMapper.toBlogResponse(blogId, request, createdTimestamp, updatedTimestamp);
 
@@ -132,10 +115,11 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
         if (RequestValidator.validateRequest(request, responseObserver)) {
             return;
         }
-        String blogId = request.getId();
-        DeleteResult result = mongoCollection.deleteOne(eq(ID, new ObjectId(blogId)));
 
-        if (result.getDeletedCount() == 0) {
+        String blogId = request.getId();
+        long result = blogDao.deleteOne(eq(ID, new ObjectId(blogId)));
+
+        if (result == 0) {
             throwStatusRuntimeException("There is no blog with ID " + blogId + " to delete",
                     "DeleteById error:\n{}", responseObserver);
         } else {
@@ -151,7 +135,7 @@ public class BlogServiceImpl extends BlogServiceGrpc.BlogServiceImplBase {
 
     @Override
     public void findAll(Empty request, StreamObserver<BlogResponse> responseObserver) {
-        mongoCollection.find()
+        blogDao.findAll()
                 .map(document -> {
                     Instant createdInstant = document.getDate(CREATED_TIME).toInstant();
                     Timestamp createdTimestamp = getTimestamp(createdInstant);
