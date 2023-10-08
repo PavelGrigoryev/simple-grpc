@@ -13,7 +13,7 @@ import java.io.IOException;
 public class GreetingServer {
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        log.info("Hello ice gRPC)");
+        log.info("Hello ice2 gRPC)");
 
         Server server = ServerBuilder.forPort(50051)
                 .addService(new GreetServiceImpl())
